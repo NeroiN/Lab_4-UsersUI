@@ -1,6 +1,8 @@
 package com.topic2.android.notes.ui.components
 
-import androidx.compose.foundation.*
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -13,26 +15,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.topic2.android.notes.R
 import com.topic2.android.notes.routing.NotesRouter
 import com.topic2.android.notes.routing.Screen
 import com.topic2.android.notes.theme.NotesTheme
 import com.topic2.android.notes.theme.NotesThemeSettings
 
-
 @Composable
-private fun AppDrawerHaeder(){
-    Row(modifier = Modifier.fillMaxSize()) {
+private fun AppDrawerHeader(){
+    Row(modifier = Modifier.fillMaxWidth()) {
         Image(
             imageVector = Icons.Filled.Menu,
             contentDescription = "Drawer Header Icon",
             colorFilter = ColorFilter
                 .tint(MaterialTheme.colors.onSurface),
-            modifier = Modifier
-                .padding(16.dp)
-                .size(42.dp)
+            modifier = Modifier.padding(16.dp)
         )
         Text(
             text = "Заметки",
@@ -40,17 +41,16 @@ private fun AppDrawerHaeder(){
             style = MaterialTheme.typography.body1,
             color = Color.Black,
             modifier = Modifier.padding(0.dp, 18.dp),
-
-        )
-
+            )
     }
 }
-@Preview
+
+
 @Composable
 fun AppDrawerHeaderPreview(){
     NotesTheme {
-       AppDrawerHaeder()
-   }
+        AppDrawerHeader()
+    }
 }
 
 @Composable
@@ -59,116 +59,87 @@ private fun ScreenNavigationButton(
     label: String,
     isSelected: Boolean,
     onClick: () -> Unit
-){
-    val  colors = MaterialTheme.colors
-
+) {
+    val colors = MaterialTheme.colors
     val imageAlpha = if (isSelected){
         1f
     } else{
         0.6f
     }
-
     val textColor = if (isSelected){
         colors.primary
-    } else {
+    } else{
         colors.onSurface.copy(alpha = 0.6f)
     }
-
     val backgroundColor = if (isSelected){
         colors.primary.copy(alpha = 0.12f)
-    } else {
+    } else{
         colors.surface
     }
-Surface(
-    modifier = Modifier
-        .fillMaxSize()
-        .padding(start = 8.dp, end = 8.dp, top = 60.dp, bottom = 620.dp),
-    color = backgroundColor,
-    shape = MaterialTheme.shapes.small
-) {
-    Row(
-        horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.CenterVertically,
+    Surface(
         modifier = Modifier
-            .clickable(onClick = onClick)
-            .fillMaxSize()
-            .padding(23.dp)
+            .fillMaxWidth()
+            .padding(start = 8.dp, end = 8.dp, top = 8.dp),
+        color = backgroundColor,
+        shape = MaterialTheme.shapes.small
     ) {
-    Image(
-        imageVector = icon,
-        contentDescription = "Screen Navigation Button",
-        colorFilter = ColorFilter.tint(textColor),
-        alpha = imageAlpha,
-    )
-    Spacer(Modifier.width(16.dp))
-    Text(
-        text = label,
-        fontSize = 16.sp,
-        style = MaterialTheme.typography.body2,
-        color = textColor,
-        modifier = Modifier.fillMaxSize()
-    )
+        Row(
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .clickable(onClick = onClick)
+                .fillMaxWidth()
+                .padding(4.dp)
+        ) {
+            Image(
+                imageVector = icon ,
+                contentDescription = "Screen Navigation Button",
+                colorFilter = ColorFilter.tint(textColor),
+                alpha = imageAlpha
+            )
+            Spacer(Modifier.width(16.dp))
+            Text(
+                text = label,
+                style = MaterialTheme.typography.body2,
+                color = textColor,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }
 
-@Preview
-@Composable
-fun ScreenNavigationButtonPreview(){
-
-    ScreenNavigationButton(
-            icon = Icons.Filled.Home,
-            label = "Заметки",
-            isSelected = true,
-            onClick = { }
-    )
-}
-
 @Composable
 private fun LightDarkThemeItem(){
-    Row(
-        Modifier
-            .padding(8.dp)
-    ) {
-       Text(
-           text = "Включить темную тему",
-           style = MaterialTheme.typography.body2,
-           color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
-           modifier = Modifier
-               .weight(1f)
-               .padding(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 8.dp)
-               .align(alignment = Alignment.CenterVertically)
-       )
-        Switch(
-            checked = NotesThemeSettings.isDarkThemeEnabled,
-            onCheckedChange = { NotesThemeSettings.isDarkThemeEnabled = it },
-            modifier = Modifier
-                .padding(start = 8.dp, end = 8.dp)
-                .align(alignment = Alignment.CenterVertically)
-        )
-
-
-
-    }
+Row(
+    Modifier
+        .padding(8.dp)
+) {
+    Text(
+        text = "Включить темную тему",
+        style = MaterialTheme.typography.body2,
+        color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
+        modifier = Modifier
+            .weight(1f)
+            .padding(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 8.dp)
+            .align(alignment = Alignment.CenterVertically)
+    )
+    Switch(
+        checked = NotesThemeSettings.isDarkThemeEnabled,
+        onCheckedChange ={ NotesThemeSettings.isDarkThemeEnabled = it},
+        modifier = Modifier
+            .padding(start = 8.dp, end = 8.dp)
+            .align(alignment = Alignment.CenterVertically)
+    )
 }
-
-@Preview
-@Composable
-fun LightDarkThemeItemPreview(){
-   NotesTheme {
-       LightDarkThemeItem()
-   }
-
 }
-
 
 @Composable
 fun AppDrawer(
     currentScreen: Screen,
-    closeDrawerAction: () -> Unit
-){
+    closeDrawerAction: () ->Unit
+) {
     Column(modifier = Modifier.fillMaxSize()) {
-        AppDrawerHaeder()
+        AppDrawerHeader()
 
         Divider(color = MaterialTheme.colors.onSurface.copy(alpha = .2f))
 
@@ -194,10 +165,32 @@ fun AppDrawer(
     }
 }
 
+
+@Composable
+fun ScreenNavigationButtonPreview(){
+    NotesTheme {
+        ScreenNavigationButton(
+            icon = Icons.Filled.Home,
+            label = "Заметки",
+            isSelected = true,
+            onClick = {}
+        )
+    }
+}
+
+@Composable
+private fun LightDarkThemeItemPreview(){
+    NotesTheme {
+        LightDarkThemeItem()
+    }
+}
+
 @Preview
 @Composable
 fun AppDrawerPreview(){
     NotesTheme {
-        AppDrawer(Screen.Notes, {})
+        AppDrawer(Screen.Notes){
+
+        }
     }
 }

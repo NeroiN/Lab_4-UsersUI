@@ -1,6 +1,6 @@
 package com.topic2.android.notes.ui.components
 
-import android.graphics.drawable.shapes.Shape
+//import android.graphics.drawable.shapes.Shape
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,7 +31,7 @@ fun Note() {
     ) {
         NoteColor(
             modifier = Modifier
-                .align(Alignment.CenterVertically),
+                .align(Alignment.Top),
 //                .padding(start = 16.dp, end = 16.dp),
             color = rwGreen,
             size = 40.dp,
@@ -46,7 +46,7 @@ fun Note() {
 
         Column(modifier = Modifier
             .weight(1f)
-            .align(Alignment.CenterVertically)
+//            .align(Alignment.CenterVertically)
         ) {
             Text(
                 text = "Заголовок",
@@ -75,7 +75,7 @@ fun Note() {
             onCheckedChange = { },
             modifier = Modifier
                 .padding(start = 8.dp)
-                .align(Alignment.CenterVertically)
+//                .align(Alignment.CenterVertically)
         )
     }
 
