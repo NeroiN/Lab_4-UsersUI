@@ -13,6 +13,7 @@ import com.topic2.android.notes.routing.Screen
 import com.topic2.android.notes.theme.NotesTheme
 import com.topic2.android.notes.ui.components.AppDrawer
 import com.topic2.android.notes.ui.components.Note
+import com.topic2.android.notes.ui.components.screens.NotesScreen
 import com.topic2.android.notes.viewmodel.MainViewModel
 import com.topic2.android.notes.viewmodel.MainViewModelFactory
 import kotlinx.coroutines.launch
@@ -37,7 +38,7 @@ class MainActivity : AppCompatActivity() {
       NotesTheme {
         val coroutineScope = rememberCoroutineScope()
         val scaffoldState: ScaffoldState = rememberScaffoldState()
-
+            NotesScreen(viewModel = viewModel)
         Scaffold(
           scaffoldState = scaffoldState,
           drawerContent = {
