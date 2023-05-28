@@ -9,6 +9,7 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.rememberCoroutineScope
+import com.topic2.android.notes.domain.model.NoteModel
 import com.topic2.android.notes.routing.Screen
 import com.topic2.android.notes.theme.NotesTheme
 import com.topic2.android.notes.ui.components.AppDrawer
@@ -52,7 +53,13 @@ class MainActivity : AppCompatActivity() {
             )
           },
           content = {
-            Note()
+            Note(
+              note = NoteModel(
+              id = 1,
+              title = "Заметка 1",
+              content = "Содержимое 1",
+              isCheckedOff = null
+            ))
           },
         )
       }

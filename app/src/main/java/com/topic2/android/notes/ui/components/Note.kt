@@ -2,6 +2,7 @@ package com.topic2.android.notes.ui.components
 
 //import android.graphics.drawable.shapes.Shape
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Checkbox
@@ -16,40 +17,42 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.topic2.android.notes.domain.model.NoteModel
 import com.topic2.android.notes.theme.rwGreen
+import com.topic2.android.notes.util.fromHex
 
 @Composable
-fun Note() {
+fun Note(
+    note: NoteModel,
+    onNoteClick: (NoteModel) -> Unit = {},
+    onNoteCheckedChange: (NoteModel) -> Unit = {}
+) {
     val backgroundShape: RoundedCornerShape = RoundedCornerShape(4.dp)
     Row(
         modifier = Modifier
             .padding(8.dp)
             .shadow(1.dp, backgroundShape)
-            .fillMaxSize()
+            .fillMaxWidth()
             .heightIn(min = 64.dp)
             .background(Color.White, backgroundShape)
+            .clickable(onClick = { onNoteClick(note) })
     ) {
         NoteColor(
             modifier = Modifier
                 .align(Alignment.Top),
 //                .padding(start = 16.dp, end = 16.dp),
-            color = rwGreen,
+            color = Color.fromHex(note.color.hex),
             size = 40.dp,
             padding = 4.dp,
             border = 1.dp
         )
-//        Box(
-//            modifier = Modifier
-//                .size(48.dp)
-//                .background(rwGreen)
-//        )
 
         Column(modifier = Modifier
             .weight(1f)
 //            .align(Alignment.CenterVertically)
         ) {
             Text(
-                text = "Заголовок",
+                text = note.title,
                 color = Color.Black,
                 maxLines = 1,
                 style = TextStyle(
@@ -59,7 +62,7 @@ fun Note() {
                 )
             )
             Text(
-                text = "Содержимое",
+                text = note.content,
                 color = Color.Black.copy(alpha = 0.75f),
                 maxLines = 1,
                 style = TextStyle(
@@ -70,13 +73,20 @@ fun Note() {
             )
         }
 
-        Checkbox(
-            checked = false,
-            onCheckedChange = { },
-            modifier = Modifier
-                .padding(start = 8.dp)
+
+        if (note.isCheckedOff != null) {
+            Checkbox(
+                checked = note.isCheckedOff,
+                onCheckedChange = {isChecked ->
+                    val newNote = note.copy(isCheckedOff = isChecked)
+                    onNoteCheckedChange(newNote)
+                },
+                modifier = Modifier
+                    .padding(start = 8.dp)
 //                .align(Alignment.CenterVertically)
-        )
+            )
+
+        }
     }
 
 }
@@ -84,5 +94,12 @@ fun Note() {
 @Preview
 @Composable
 private fun NotePreview() {
-    Note()
+    Note(
+        note = NoteModel(
+            id = 1,
+            title = "Заметка 1",
+            content = "Содержимое 1",
+            isCheckedOff = null
+        )
+    )
 }

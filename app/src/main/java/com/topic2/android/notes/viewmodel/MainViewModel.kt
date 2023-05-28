@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
  * Эта модель просмотра используется для всех экранов.
  */
 class MainViewModel(private val repository: Repository) : ViewModel() {
-    val notesNotInTraesh: LiveData<List<NoteModel>> by lazy {
+    val notesNotInTrash: LiveData<List<NoteModel>> by lazy {
         repository.getAllNotesNotInTrash()
     }
 
