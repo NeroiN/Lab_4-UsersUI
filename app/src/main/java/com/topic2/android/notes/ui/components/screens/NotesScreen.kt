@@ -78,7 +78,7 @@ fun NotesScreen(
 }
 
 @Composable
-private fun NotesList(
+fun NotesList(
     notes: List<NoteModel>,
     onNoteCheckedChange: (NoteModel) -> Unit,
     onNoteClick: (NoteModel) -> Unit
@@ -108,3 +108,5 @@ private fun NotesListPreview() {
         onNoteClick = {}
     )
 }
+
+
