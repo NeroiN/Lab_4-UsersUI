@@ -30,17 +30,31 @@ fun NotesScreen(
     val scaffoldState: ScaffoldState = rememberScaffoldState()
     val coroutineScope = rememberCoroutineScope()
 
-    Scaffold(topBar =  {
-        TopAppBar(
-            title = "Notes",
-            icon = Icons.Filled.List,
-            onIconClick = {
-                coroutineScope.launch {
-                    scaffoldState.drawerState.open()
-                }
-            }
-        )
-    },
+    Scaffold(
+        topBar = {
+          TopAppBar(
+              title = {
+                  Text(
+                      text = "Notes",
+                      color = MaterialTheme.colors.onPrimary
+                  )
+              },
+              navigationIcon = {
+                  IconButton(
+                      onClick = {
+                          coroutineScope.launch {
+                              scaffoldState.drawerState.open()
+                          }
+                      }
+                  ) {
+                      Icon(
+                          imageVector = Icons.Filled.List,
+                          contentDescription = "Drawer Button"
+                      )
+                  }
+              }
+          )
+        },
         scaffoldState = scaffoldState,
         drawerContent = {
              AppDrawer(
@@ -108,5 +122,3 @@ private fun NotesListPreview() {
         onNoteClick = {}
     )
 }
-
-

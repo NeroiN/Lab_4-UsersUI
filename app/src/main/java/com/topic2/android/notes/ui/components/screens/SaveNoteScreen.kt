@@ -1,21 +1,19 @@
 package com.topic2.android.notes.ui.components.screens
 
 import android.annotation.SuppressLint
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.*
 //import androidx.compose.foundation.layout.RowScopeInstance.weight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,12 +31,34 @@ import com.topic2.android.notes.domain.model.NEW_NOTE_ID
 import com.topic2.android.notes.domain.model.NoteModel
 import com.topic2.android.notes.routing.NotesRouter
 import com.topic2.android.notes.routing.Screen
+import kotlinx.coroutines.launch
 
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
+@ExperimentalMaterialApi
 fun SaveNoteScreen(viewModel: MainViewModel) {
     val  noteEntry: NoteModel by viewModel.noteEntry.observeAsState(NoteModel())
+
+    val colors: List<ColorModel> by viewModel.colors
+        .observeAsState(listOf())
+
+    val bottomDrawerState: BottomDrawerState = rememberBottomDrawerState(BottomDrawerValue.Closed)
+    val coroutineScope = rememberCoroutineScope()
+
+    val moveNoteToTrashDialogShownState: MutableState<Boolean> = rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    BackHandler(
+        onBack = {
+            if (bottomDrawerState.isOpen) {
+                coroutineScope.launch { bottomDrawerState.close() }
+            } else {
+                NotesRouter.navigateTo(Screen.Notes)
+            }
+        }
+    )
 
     Scaffold(topBar =  {
         val isEditingMode: Boolean = noteEntry.id != NEW_NOTE_ID
@@ -47,12 +67,69 @@ fun SaveNoteScreen(viewModel: MainViewModel) {
             onBackClick = {
                NotesRouter.navigateTo(Screen.Notes)
             },
-            onSaveNoteClick = {},
-            onOpenColorPickerClick = {},
-            onDeleteNoteClick = {}
+            onSaveNoteClick = {
+                viewModel.saveNote(noteEntry)
+            },
+            onOpenColorPickerClick = {
+                coroutineScope.launch { bottomDrawerState.open() }
+            },
+            onDeleteNoteClick = {
+                moveNoteToTrashDialogShownState.value = true
+            }
         )
+
     },
-        content = {}
+        content = {
+            SaveNoteContent(
+                note = noteEntry,
+                onNoteChange = { updateNoteEntry ->
+                    viewModel.onNoteEntryChange(updateNoteEntry)
+                }
+            )
+            BottomDrawer(
+                drawerState = bottomDrawerState,
+                drawerContent = {
+                    ColorPicker(
+                        colors = colors,
+                        onColorSelect = { color ->
+                            val newNoteEntry = noteEntry.copy(color = color)
+                            viewModel.onNoteEntryChange(newNoteEntry)
+                        }
+                    )
+                }
+            ) {}
+                if (moveNoteToTrashDialogShownState.value) {
+                    AlertDialog(
+                        onDismissRequest = {
+                            moveNoteToTrashDialogShownState.value = false
+                        },
+                        title = {
+                            Text("Move note to the trash?")
+                        },
+                        text = {
+                            Text(
+                                "Are you sure want to" +
+                                        "move this note to the trash?"
+                            )
+                        },
+                        confirmButton = {
+                                        TextButton(onClick = {
+                                            viewModel.moveNoteToTrash(noteEntry)
+                                        }) {
+                                            Text("Confirm")
+                                        }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = {
+                                moveNoteToTrashDialogShownState.value = false
+                            }) {
+                                Text("Dismiss")
+                            }
+                        }
+                    )
+
+                }
+        }
     )
     
 }
@@ -111,6 +188,48 @@ private fun SaveNoteTopAppBar(
             }
         }
     )
+}
+
+@Composable
+private fun ContentTextField(
+    modifier: Modifier = Modifier,
+    label: String,
+    text: String,
+    onTextChange: (String) -> Unit
+) {
+    TextField(
+        value = text,
+        onValueChange = onTextChange,
+        label = {Text(label)},
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp),
+        colors = TextFieldDefaults.textFieldColors(
+            backgroundColor = MaterialTheme.colors.surface
+        )
+    )
+}
+
+@Composable
+private fun NoteCheckOption(
+    isChecked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Row(
+        Modifier
+            .padding(8.dp)
+            .padding(top = 16.dp)
+    ) {
+        Text(
+            text = "Can note be checked off?",
+            modifier = Modifier.weight(1f)
+        )
+        Switch(
+            checked = isChecked,
+            onCheckedChange = onCheckedChange,
+            modifier = Modifier.padding(start = 8.dp)
+        )
+    }
 }
 
 @Composable
@@ -200,6 +319,54 @@ fun ColorItem(
     }
 }
 
+@Composable
+private fun SaveNoteContent(
+    note: NoteModel,
+    onNoteChange: (NoteModel) -> Unit
+) {
+    Column(modifier = Modifier.fillMaxSize()) {
+        ContentTextField(
+            label = "Title",
+            text = note.title,
+            onTextChange = { newTitle ->
+                onNoteChange.invoke(note.copy(title = newTitle))
+            }
+        )
+        ContentTextField(
+            modifier = Modifier
+                .heightIn(max = 240.dp)
+                .padding(top = 16.dp),
+            label = "Body",
+            text = note.title,
+            onTextChange = { newContent ->
+                onNoteChange.invoke(note.copy(title = newContent))
+            }
+        )
+        val canBeCheckedOff: Boolean = note.isCheckedOff != null
+
+        NoteCheckOption(
+            isChecked = canBeCheckedOff,
+            onCheckedChange = { canBeCheckedOffNewValue ->
+                val isCheckedOff: Boolean? = if (canBeCheckedOffNewValue) false else null
+                onNoteChange.invoke(note.copy(isCheckedOff = isCheckedOff))
+            }
+        )
+        PickedColor(color = note.color)
+    }
+}
+
+@Preview
+@Composable
+fun SaveNoteContentPreview() {
+    SaveNoteContent(
+        note = NoteModel(
+            title = "Title",
+            content = "content"
+        ),
+        onNoteChange = {}
+    )
+}
+
 @Preview
 @Composable
 fun ColorPickerPreview() {
@@ -234,4 +401,20 @@ fun SaveNoteTopAppBarPreview() {
 @Composable
 fun PickedColorPreview() {
     PickedColor(ColorModel.DEFAULT)
+}
+
+@Preview
+@Composable
+fun NoteCheckOptionPreview() {
+    NoteCheckOption(false) {}
+}
+
+@Preview
+@Composable
+fun ContentTextFieldPreview() {
+    ContentTextField(
+        label = "Title",
+        text = "",
+        onTextChange = {}
+    )
 }
