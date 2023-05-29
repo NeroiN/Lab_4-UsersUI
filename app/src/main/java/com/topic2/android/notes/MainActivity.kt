@@ -5,11 +5,11 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material.Scaffold
-import androidx.compose.material.ScaffoldState
-import androidx.compose.material.rememberScaffoldState
+import androidx.compose.material.*
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import com.topic2.android.notes.domain.model.NoteModel
+import com.topic2.android.notes.routing.NotesRouter
 import com.topic2.android.notes.routing.Screen
 import com.topic2.android.notes.theme.NotesTheme
 import com.topic2.android.notes.ui.components.AppDrawer
@@ -31,15 +31,18 @@ class MainActivity : AppCompatActivity() {
     )
   })
 
+  @OptIn(ExperimentalMaterialApi::class)
   @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
     setContent {
       NotesTheme {
+        MainActivityScreen(viewModel = viewModel)
         val coroutineScope = rememberCoroutineScope()
         val scaffoldState: ScaffoldState = rememberScaffoldState()
             NotesScreen(viewModel = viewModel)
+
         Scaffold(
           scaffoldState = scaffoldState,
           drawerContent = {
@@ -63,6 +66,18 @@ class MainActivity : AppCompatActivity() {
           },
         )
       }
+    }
+  }
+}
+
+@Composable
+@ExperimentalMaterialApi
+private fun MainActivityScreen(viewModel: MainViewModel){
+  Surface {
+    when (NotesRouter.currentScreen) {
+      is Screen.Notes -> NotesScreen(viewModel)
+      is Screen.SaveNote -> NotesScreen(viewModel)
+      is Screen.Trash -> NotesScreen(viewModel)
     }
   }
 }
